@@ -20,6 +20,17 @@ class ObtainTokenView(ObtainAuthToken):
     serializer_class = AuthTokenSerializer
 
 
+class UserListViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        queryset = get_user_model().objects.all()
+        email = self.request.query_params.get('email')
+        if email:
+            queryset = queryset.filter(email__icontains=email)
+        return queryset
+
+
 class ManageUserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [ForeignProfileReadonly]
