@@ -5,7 +5,7 @@ from accounts import views
 urlpatterns = [
     path("register/", views.CreateUserView.as_view(), name="register"),
     path("login/", views.ObtainTokenView.as_view(), name="login"),
-    path("me/", views.ManageUserViewSet.as_view(
+    path("profile/<int:pk>/", views.ManageUserViewSet.as_view(
         {
             "get": "retrieve",
             "put": "update",
