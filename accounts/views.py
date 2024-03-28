@@ -1,11 +1,11 @@
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
-from accounts.serializers import UserSerializer, AuthTokenSerializer
+from accounts.serializers import UserSerializer, AuthTokenSerializer, UploadImageSerializer
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -18,11 +18,29 @@ class ObtainTokenView(ObtainAuthToken):
     serializer_class = AuthTokenSerializer
 
 
-class ManageUserView(generics.RetrieveUpdateAPIView):
+class ManageUserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
     def get_object(self):
         return self.request.user
+
+    def get_serializer_class(self):
+        if self.action == "upload_image":
+            return UploadImageSerializer
+        return UserSerializer
+
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="upload-image",
+        permission_classes=[permissions.IsAuthenticated]
+    )
+    def upload_image(self, request, pk=None):
+        user = self.get_object()
+        serializer = self.get_serializer(user, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
