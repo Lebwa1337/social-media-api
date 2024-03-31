@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.decorators import api_view, permission_classes, action
@@ -9,7 +11,12 @@ from rest_framework.settings import api_settings
 
 from accounts.models import Follow, User, Post
 from accounts.permissions import ForeignProfileReadonly
-from accounts.serializers import UserSerializer, AuthTokenSerializer, UploadImageSerializer, PostSerializer
+from accounts.serializers import (
+    UserSerializer,
+    AuthTokenSerializer,
+    UploadImageSerializer,
+    PostSerializer
+)
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -24,6 +31,18 @@ class ObtainTokenView(ObtainAuthToken):
 
 class UserListViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="email",
+                type=OpenApiTypes.EMAIL,
+                description="Filter users by email address"
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def get_queryset(self):
         queryset = get_user_model().objects.all()
@@ -93,6 +112,23 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="followers",
+                type=OpenApiTypes.BOOL,
+                description="Show posts of users who you follow"
+            ),
+            OpenApiParameter(
+                name="title",
+                type=OpenApiTypes.STR,
+                description="Filter posts by title"
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def get_queryset(self):
         followers = self.request.query_params.get('followers')

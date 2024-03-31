@@ -26,7 +26,8 @@ urlpatterns = [
         views.PostViewSet.as_view(
             {
                 "get": "list",
-                "post": "create"
+                "post": "create",
+                "delete": "destroy"
             }
         ),
         name="post"
