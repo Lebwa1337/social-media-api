@@ -7,9 +7,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
-from accounts.models import Follow, User
+from accounts.models import Follow, User, Post
 from accounts.permissions import ForeignProfileReadonly
-from accounts.serializers import UserSerializer, AuthTokenSerializer, UploadImageSerializer
+from accounts.serializers import UserSerializer, AuthTokenSerializer, UploadImageSerializer, PostSerializer
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -81,7 +81,32 @@ def follow_user(request, user_id):
         status=status.HTTP_200_OK
     )
 
+
 # def unfollow_user(request, user_id):
 #     user_to_unfollow = get_object_or_404(User, id=user_id)
 #     request.user.following.filter(id=user_id).delete()
 #     return redirect('profile_page')
+
+
+class PostViewSet(viewsets.ModelViewSet):
+    serializer_class = PostSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_queryset(self):
+        followers = self.request.query_params.get('followers')
+        title = self.request.query_params.get('title')
+        if not followers:
+            queryset = Post.objects.filter(user=self.request.user)
+        else:
+            queryset = Post.objects.all()
+        if followers:
+            """Getting id`s of users, who authenticated user is following"""
+            following_id = []
+            for follow_instance in self.request.user.follower.all():
+                following_id.append(follow_instance.following.id)
+            queryset = queryset.filter(user__id__in=following_id)
+        if title:
+            queryset = queryset.filter(title__icontains=title)
+        return queryset

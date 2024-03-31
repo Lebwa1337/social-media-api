@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
 from django.utils.translation import gettext as _
 
+from accounts.models import Post
+
 
 class UploadImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -71,3 +73,10 @@ class AuthTokenSerializer(serializers.Serializer):
 
         attrs["user"] = user
         return attrs
+
+
+class PostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ["user", "title", "body", "created_at"]
+        read_only_fields = ["user", "created_at"]

@@ -20,7 +20,17 @@ urlpatterns = [
          name="me"
          ),
     path("logout/", views.user_logout, name="logout"),
-    path("follow/<int:user_id>/", views.follow_user, name="follow")
+    path("follow/<int:user_id>/", views.follow_user, name="follow"),
+    path(
+        "posts/",
+        views.PostViewSet.as_view(
+            {
+                "get": "list",
+                "post": "create"
+            }
+        ),
+        name="post"
+    )
 ]
 
 app_name = 'accounts'
