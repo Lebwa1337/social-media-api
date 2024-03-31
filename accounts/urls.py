@@ -19,7 +19,8 @@ urlpatterns = [
     ),
          name="me"
          ),
-    path("logout/", views.user_logout, name="logout")
+    path("logout/", views.user_logout, name="logout"),
+    path("follow/<int:user_id>/", views.follow_user, name="follow")
 ]
 
 app_name = 'accounts'
