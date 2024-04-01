@@ -20,7 +20,8 @@ urlpatterns = [
          name="me"
          ),
     path("logout/", views.user_logout, name="logout"),
-    path("follow/<int:user_id>/", views.follow_user, name="follow"),
+    path("follow/", views.follow_user, name="follow"),
+    path("unfollow/", views.unfollow_user, name="unfollow"),
     path(
         "posts/",
         views.PostViewSet.as_view(

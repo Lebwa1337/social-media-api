@@ -26,7 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
             "followers",
             "following"
         )
-        read_only_fields = ("is_staff",)
+        read_only_fields = ("is_staff", "followers", "following")
         extra_kwargs = {"password": {"write_only": True, "min_length": 5}}
 
     def create(self, validated_data):

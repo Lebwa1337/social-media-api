@@ -90,21 +90,33 @@ def user_logout(request):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def follow_user(request, user_id):
+def follow_user(request):
+    user_id = request.data["user_id"]
     user_to_follow = get_object_or_404(User, id=user_id)
-    if not request.user.following.filter(id=user_id).exists():
+    if not request.user.follower.filter(following__id=user_id).exists():
         Follow.objects.create(follower=request.user, following=user_to_follow)
+        return Response(
+            {"message": "Your are currently following {}".format(user_to_follow.email)},
+            status=status.HTTP_200_OK
+        )
     return Response(
-        {"message": "Your are currently following {}".format(user_to_follow.username)},
-        status=status.HTTP_200_OK
+        {"message": "Your are already following {}".format(user_to_follow.email)},
+        status=status.HTTP_202_ACCEPTED
     )
 
 
-# def unfollow_user(request, user_id):
-#     user_to_unfollow = get_object_or_404(User, id=user_id)
-#     request.user.following.filter(id=user_id).delete()
-#     return redirect('profile_page')
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def unfollow_user(request):
+    user_id = request.data["user_id"]
+    user_to_unfollow = get_object_or_404(User, id=user_id)
+    request.user.follower.filter(following__id=user_id).delete()
+    return Response(
+            {"message": "Successfully unfollowing {}".format(user_to_unfollow.email)},
+            status=status.HTTP_200_OK
+        )
 
 
 class PostViewSet(viewsets.ModelViewSet):
