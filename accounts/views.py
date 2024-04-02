@@ -2,12 +2,14 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import generics, permissions, status, viewsets
+from rest_framework import status
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.decorators import api_view, permission_classes, action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import CreateAPIView
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
+from rest_framework.viewsets import ModelViewSet
 
 from accounts.models import Follow, User, Post
 from accounts.permissions import ForeignProfileReadonly
@@ -19,9 +21,9 @@ from accounts.serializers import (
 )
 
 
-class CreateUserView(generics.CreateAPIView):
+class CreateUserView(CreateAPIView):
     serializer_class = UserSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowAny]
 
 
 class ObtainTokenView(ObtainAuthToken):
@@ -29,7 +31,7 @@ class ObtainTokenView(ObtainAuthToken):
     serializer_class = AuthTokenSerializer
 
 
-class UserListViewSet(viewsets.ModelViewSet):
+class UserListViewSet(ModelViewSet):
     serializer_class = UserSerializer
 
     @extend_schema(
@@ -52,7 +54,7 @@ class UserListViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class ManageUserViewSet(viewsets.ModelViewSet):
+class ManageUserViewSet(ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [ForeignProfileReadonly]
 
@@ -69,7 +71,7 @@ class ManageUserViewSet(viewsets.ModelViewSet):
         methods=["POST"],
         detail=True,
         url_path="upload-image",
-        permission_classes=[permissions.IsAuthenticated]
+        permission_classes=[IsAuthenticated]
     )
     def upload_image(self, request, pk=None):
         user = self.get_object()
@@ -119,7 +121,7 @@ def unfollow_user(request):
         )
 
 
-class PostViewSet(viewsets.ModelViewSet):
+class PostViewSet(ModelViewSet):
     serializer_class = PostSerializer
 
     def perform_create(self, serializer):
