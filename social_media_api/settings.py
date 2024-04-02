@@ -37,8 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     "rest_framework.authtoken",
-    'django_celery_beat',
-    'django_celery_results',
     "drf_spectacular",
     "accounts"
 ]
@@ -136,10 +134,3 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
-
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER_REDIS_URL', 'redis://localhost:6379')
-CELERY_RESULT_BACKEND = "django-db"
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
-CELERY_TIMEZONE = "Europe/Kyiv"
-CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 30 * 60
